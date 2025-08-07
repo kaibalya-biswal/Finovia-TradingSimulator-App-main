@@ -154,9 +154,15 @@ const MyHoldingsWidget = ({ onRefresh }) => {
         <div className="holdings-header" onClick={() => setIsExpanded(!isExpanded)}>
           <h3>My Holdings</h3>
           <div className="holdings-actions">
-            <button onClick={fetchHoldings} className="refresh-btn" onClick={(e) => e.stopPropagation()}>
-              ↻
-            </button>
+                      <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              fetchHoldings();
+            }} 
+            className="refresh-btn"
+          >
+            ↻
+          </button>
             <span className={`expand-arrow ${isExpanded ? 'expanded' : ''}`}>▼</span>
           </div>
         </div>
@@ -189,7 +195,14 @@ const MyHoldingsWidget = ({ onRefresh }) => {
       <div className="holdings-header" onClick={() => setIsExpanded(!isExpanded)}>
         <h3>My Holdings</h3>
         <div className="holdings-actions">
-          <button onClick={fetchHoldings} className="refresh-btn" title="Refresh" onClick={(e) => e.stopPropagation()}>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              fetchHoldings();
+            }} 
+            className="refresh-btn" 
+            title="Refresh"
+          >
             ↻
           </button>
           <span className={`expand-arrow ${isExpanded ? 'expanded' : ''}`}>▼</span>
