@@ -8,7 +8,7 @@ const MyHoldingsWidget = ({ onRefresh }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'symbol', direction: 'asc' });
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const fetchHoldings = async () => {
     try {

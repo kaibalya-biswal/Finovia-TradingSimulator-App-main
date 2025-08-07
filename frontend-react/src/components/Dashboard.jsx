@@ -214,6 +214,11 @@ function Dashboard() {
 
       {/* Main center */}
       <main className="main-content">
+        {/* Chart Widget */}
+        <div className="card" style={{ marginBottom: 16 }}>
+          <TradingViewWidget />
+        </div>
+
         {/* Portfolio Overview */}
         <div className="card" style={{ marginBottom: 24 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -251,18 +256,13 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* My Holdings Widget */}
-        <MyHoldingsWidget onRefresh={fetchPortfolio} />
-
-        {/* Trade Widget card - moved above chart */}
+        {/* Trade Widget card */}
         <div className="card" style={{ marginBottom: 16 }}>
           <TradeWidget onTradeSuccess={fetchPortfolio} />
         </div>
 
-        {/* Chart Widget */}
-        <div className="card" style={{ marginBottom: 16 }}>
-          <TradingViewWidget />
-        </div>
+        {/* My Holdings Widget */}
+        <MyHoldingsWidget onRefresh={fetchPortfolio} />
       </main>
 
       {/* News Sidebar (right) */}

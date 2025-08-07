@@ -20,15 +20,31 @@ function TradingViewWidget() {
         // Clear previous widget if any
         document.getElementById('tradingview_chart_container').innerHTML = '';
         new window.TradingView.widget({
-          autosize: true,
-          symbol: 'NASDAQ:AAPL',
-          interval: 'D',
-          timezone: 'Etc/UTC',
-          theme: 'dark',
-          style: 1,
-          locale: 'en',
-          enable_publishing: false,
           allow_symbol_change: true,
+          calendar: false,
+          details: true,
+          hide_side_toolbar: false,
+          hide_top_toolbar: false,
+          hide_legend: false,
+          hide_volume: false,
+          hotlist: true,
+          interval: "1",
+          locale: "en",
+          save_image: true,
+          style: "1",
+          symbol: "CRYPTO:BTCUSD",
+          theme: "dark",
+          timezone: "Etc/UTC",
+          backgroundColor: "#0F0F0F",
+          gridColor: "rgba(242, 242, 242, 0.06)",
+          watchlist: [],
+          withdateranges: false,
+          compareSymbols: [],
+          studies: [
+            "STD;Divergence%1Indicator",
+            "STD;EMA"
+          ],
+          autosize: true,
           container_id: 'tradingview_chart_container',
         });
       }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -96,7 +97,7 @@ public class StockController {
             BigDecimal oldTotalValue = holding.getAveragePurchasePrice().multiply(new BigDecimal(holding.getQuantity()));
             int newQuantity = holding.getQuantity() + quantityToBuy;
             BigDecimal newTotalValue = oldTotalValue.add(totalCost);
-            holding.setAveragePurchasePrice(newTotalValue.divide(new BigDecimal(newQuantity), 2, BigDecimal.ROUND_HALF_UP));
+            holding.setAveragePurchasePrice(newTotalValue.divide(new BigDecimal(newQuantity), RoundingMode.HALF_UP).setScale(2, RoundingMode.HALF_UP));
             holding.setQuantity(newQuantity);
         } else {
             // This is a new stock for the user
@@ -190,6 +191,7 @@ public class StockController {
             String url = "https://finnhub.io/api/v1/stock/recommendation?symbol=" + symbol.toUpperCase() + "&token=" + finnhubApiKey;
             
             // Fetch the data from Finnhub API
+            @SuppressWarnings("unchecked")
             List<Map<String, Object>> responseFromFinnhub = restTemplate.getForObject(url, List.class);
             
             if (responseFromFinnhub == null) {

@@ -30,7 +30,7 @@ function Footer() {
         }}>
           <span>Privacy Policy</span>
           <span>Terms of Service</span>
-          <span>Contact Support</span>
+          <span>Contact Support: 9348180476</span>
         </div>
       </div>
     </footer>

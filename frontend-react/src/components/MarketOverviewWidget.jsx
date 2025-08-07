@@ -20,51 +20,120 @@ function MarketOverviewWidget() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMarketData = async () => {
+    const generateRandomMarketData = () => {
       try {
         setLoading(true);
         
-        // Fetch major indices
-        const indexPromises = marketData.indices.map(async (index) => {
-          try {
-            const response = await axios.get(`http://localhost:8080/api/stocks/quote/${index.symbol}`);
-            return {
-              ...index,
-              price: response.data.currentPrice || 0,
-              change: response.data.change || 0,
-              changePercent: response.data.changePercent || 0
-            };
-          } catch (err) {
-            console.error(`Error fetching ${index.symbol}:`, err);
-            return index;
+        // Generate random indices data
+        const randomIndices = [
+          { 
+            symbol: '^GSPC', 
+            name: 'S&P 500', 
+            price: Math.random() * 2000 + 4000, // 4000-6000 range
+            change: (Math.random() - 0.5) * 100, // -50 to +50 range
+            changePercent: (Math.random() - 0.5) * 4 // -2% to +2% range
+          },
+          { 
+            symbol: '^IXIC', 
+            name: 'NASDAQ', 
+            price: Math.random() * 3000 + 12000, // 12000-15000 range
+            change: (Math.random() - 0.5) * 150, // -75 to +75 range
+            changePercent: (Math.random() - 0.5) * 5 // -2.5% to +2.5% range
+          },
+          { 
+            symbol: '^DJI', 
+            name: 'DOW', 
+            price: Math.random() * 1000 + 32000, // 32000-33000 range
+            change: (Math.random() - 0.5) * 200, // -100 to +100 range
+            changePercent: (Math.random() - 0.5) * 3 // -1.5% to +1.5% range
           }
-        });
+        ];
 
-        const updatedIndices = await Promise.all(indexPromises);
-        
-        // Determine market status (simplified logic)
+        // Generate random sectors data
+        const sectorNames = ['Technology', 'Healthcare', 'Finance', 'Energy', 'Consumer', 'Industrial', 'Materials', 'Utilities'];
+        const randomSectors = sectorNames.map(name => ({
+          name,
+          change: (Math.random() - 0.5) * 6, // -3% to +3% range
+          color: Math.random() > 0.5 ? '#3cffa6' : '#ef4444'
+        }));
+
+        // Determine market status based on US market hours (9:30 AM - 4:00 PM EST)
         const now = new Date();
         const isWeekend = now.getDay() === 0 || now.getDay() === 6;
-        const isMarketHours = !isWeekend && now.getHours() >= 9 && now.getHours() < 16;
+        
+        // Convert current time to EST (Eastern Standard Time)
+        const estTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+        const currentHour = estTime.getHours();
+        const currentMinute = estTime.getMinutes();
+        const currentTimeInMinutes = currentHour * 60 + currentMinute;
+        
+        // Market hours: 9:30 AM (570 minutes) to 4:00 PM (960 minutes) EST
+        const marketOpenMinutes = 9 * 60 + 30; // 9:30 AM
+        const marketCloseMinutes = 16 * 60; // 4:00 PM
+        
+        const isMarketHours = !isWeekend && 
+          currentTimeInMinutes >= marketOpenMinutes && 
+          currentTimeInMinutes < marketCloseMinutes;
+        
         const marketStatus = isMarketHours ? 'OPEN' : 'CLOSED';
 
-        setMarketData(prev => ({
-          ...prev,
-          indices: updatedIndices,
+        const newMarketData = {
+          ...marketData,
+          indices: randomIndices,
+          sectors: randomSectors,
           marketStatus
+        };
+        
+        setMarketData(newMarketData);
+        
+        // Store the generated data in localStorage
+        localStorage.setItem('marketData', JSON.stringify({
+          indices: randomIndices,
+          sectors: randomSectors
         }));
       } catch (err) {
-        console.error('Error fetching market data:', err);
+        console.error('Error generating market data:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMarketData();
-    
-    // Update every 5 minutes
-    const interval = setInterval(fetchMarketData, 300000);
-    return () => clearInterval(interval);
+    // Check if we need to update data (once per day)
+    const getStoredDate = () => {
+      const stored = localStorage.getItem('marketDataDate');
+      return stored ? new Date(stored) : null;
+    };
+
+    const setStoredDate = () => {
+      localStorage.setItem('marketDataDate', new Date().toDateString());
+    };
+
+    const shouldUpdateData = () => {
+      const storedDate = getStoredDate();
+      const today = new Date().toDateString();
+      return !storedDate || storedDate.toDateString() !== today;
+    };
+
+    if (shouldUpdateData()) {
+      generateRandomMarketData();
+      setStoredDate();
+    } else {
+      // Load existing data from localStorage if available
+      const storedData = localStorage.getItem('marketData');
+      if (storedData) {
+        try {
+          const parsedData = JSON.parse(storedData);
+          setMarketData(prev => ({
+            ...prev,
+            indices: parsedData.indices || prev.indices,
+            sectors: parsedData.sectors || prev.sectors
+          }));
+        } catch (err) {
+          console.error('Error loading stored market data:', err);
+        }
+      }
+      setLoading(false);
+    }
   }, []);
 
   const getMarketStatusColor = (status) => {
