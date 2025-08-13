@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import { validateEmail } from '../utils/validation';
 import './SignupPage.css'; // Import the external CSS file
 
 /**
@@ -18,14 +19,23 @@ function SignupPage() {
   // State for handling form submission errors and successes
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [emailError, setEmailError] = useState('');
   const navigate = useNavigate();
 
   // Handles changes in form inputs
   const handleChange = (e) => {
+    const { name, value } = e.target;
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+
+    // Real-time email validation
+    if (name === 'email') {
+      const emailValidationError = validateEmail(value);
+      setEmailError(emailValidationError);
+    }
   };
 
   // Handles the form submission
@@ -33,6 +43,13 @@ function SignupPage() {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    // Validate email before submission
+    const emailValidationError = validateEmail(formData.email);
+    if (emailValidationError) {
+      setEmailError(emailValidationError);
+      return;
+    }
 
     // Basic password length validation
     if (formData.password.length < 8) {
@@ -101,10 +118,11 @@ function SignupPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="signup-input"
+                  className={`signup-input ${emailError ? 'signup-input-error' : ''}`}
                   placeholder="you@example.com"
                   autoComplete="email"
                 />
+                {emailError && <div className="signup-field-error">{emailError}</div>}
               </div>
               <div className="signup-input-group">
                 <label className="signup-label">Password</label>
@@ -119,7 +137,11 @@ function SignupPage() {
                   autoComplete="new-password"
                 />
               </div>
-              <button type="submit" className="signup-button">
+              <button 
+                type="submit" 
+                className="signup-button"
+                disabled={!!emailError || !formData.email || !formData.username || !formData.password}
+              >
                 CREATE ACCOUNT
               </button>
             </form>
