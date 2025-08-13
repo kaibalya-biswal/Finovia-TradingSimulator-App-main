@@ -7,7 +7,6 @@ const MyHoldingsWidget = ({ onRefresh }) => {
   const [livePrices, setLivePrices] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [sortConfig, setSortConfig] = useState({ key: 'symbol', direction: 'asc' });
   const [isExpanded, setIsExpanded] = useState(false);
 
   const fetchHoldings = async () => {
@@ -92,59 +91,8 @@ const MyHoldingsWidget = ({ onRefresh }) => {
     return stats;
   };
 
-  const handleSort = (key) => {
-    setSortConfig(prev => ({
-      key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
-    }));
-  };
-
-  const sortedHoldings = [...holdings].sort((a, b) => {
-    const aStats = calculateHoldingStats(a);
-    const bStats = calculateHoldingStats(b);
-    
-    let aValue, bValue;
-    
-    switch (sortConfig.key) {
-      case 'symbol':
-        aValue = a.stockSymbol;
-        bValue = b.stockSymbol;
-        break;
-      case 'quantity':
-        aValue = a.quantity;
-        bValue = b.quantity;
-        break;
-      case 'avgPrice':
-        aValue = a.averagePurchasePrice;
-        bValue = b.averagePurchasePrice;
-        break;
-      case 'currentPrice':
-        aValue = aStats.currentPrice;
-        bValue = bStats.currentPrice;
-        break;
-      case 'value':
-        aValue = aStats.currentValue;
-        bValue = bStats.currentValue;
-        break;
-      case 'pnl':
-        aValue = aStats.pnl;
-        bValue = bStats.pnl;
-        break;
-      case 'pnlPercent':
-        aValue = aStats.pnlPercent;
-        bValue = bStats.pnlPercent;
-        break;
-      default:
-        aValue = a.stockSymbol;
-        bValue = b.stockSymbol;
-    }
-    
-    if (sortConfig.direction === 'asc') {
-      return aValue > bValue ? 1 : -1;
-    } else {
-      return aValue < bValue ? 1 : -1;
-    }
-  });
+  // Sort holdings by symbol in ascending order by default
+  const sortedHoldings = [...holdings].sort((a, b) => a.stockSymbol.localeCompare(b.stockSymbol));
 
   const totalStats = getTotalStats();
 
@@ -246,27 +194,13 @@ const MyHoldingsWidget = ({ onRefresh }) => {
             <table className="holdings-table">
               <thead>
                 <tr>
-                  <th onClick={() => handleSort('symbol')} className="sortable">
-                    Symbol {sortConfig.key === 'symbol' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th onClick={() => handleSort('quantity')} className="sortable">
-                    Qty {sortConfig.key === 'quantity' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th onClick={() => handleSort('avgPrice')} className="sortable">
-                    Avg Price {sortConfig.key === 'avgPrice' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th onClick={() => handleSort('currentPrice')} className="sortable">
-                    Current {sortConfig.key === 'currentPrice' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th onClick={() => handleSort('value')} className="sortable">
-                    Value {sortConfig.key === 'value' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th onClick={() => handleSort('pnl')} className="sortable">
-                    P/L {sortConfig.key === 'pnl' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th onClick={() => handleSort('pnlPercent')} className="sortable">
-                    P/L % {sortConfig.key === 'pnlPercent' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </th>
+                  <th>Symbol</th>
+                  <th>Qty</th>
+                  <th>Avg Price</th>
+                  <th>Current</th>
+                  <th>Value</th>
+                  <th>P/L</th>
+                  <th>P/L %</th>
                 </tr>
               </thead>
               <tbody>
