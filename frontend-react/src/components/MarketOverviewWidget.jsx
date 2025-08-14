@@ -57,23 +57,35 @@ function MarketOverviewWidget() {
           color: Math.random() > 0.5 ? '#3cffa6' : '#ef4444'
         }));
 
-        // Determine market status based on US market hours (9:30 AM - 4:00 PM EST)
+        // Determine market status based on Indian market hours (7:00 PM - 1:30 AM IST)
         const now = new Date();
         const isWeekend = now.getDay() === 0 || now.getDay() === 6;
         
-        // Convert current time to EST (Eastern Standard Time)
-        const estTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
-        const currentHour = estTime.getHours();
-        const currentMinute = estTime.getMinutes();
+        // Convert current time to IST (Indian Standard Time)
+        const istTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+        const currentHour = istTime.getHours();
+        const currentMinute = istTime.getMinutes();
         const currentTimeInMinutes = currentHour * 60 + currentMinute;
         
-        // Market hours: 9:30 AM (570 minutes) to 4:00 PM (960 minutes) EST
-        const marketOpenMinutes = 9 * 60 + 30; // 9:30 AM
-        const marketCloseMinutes = 16 * 60; // 4:00 PM
+        // Market hours: 7:00 PM (1140 minutes) to 1:30 AM (90 minutes) IST
+        // Note: 1:30 AM is 90 minutes from midnight, and 7:00 PM is 1140 minutes from midnight
+        const marketOpenMinutes = 19 * 60; // 7:00 PM (1140 minutes)
+        const marketCloseMinutes = 1 * 60 + 30; // 1:30 AM (90 minutes)
         
-        const isMarketHours = !isWeekend && 
-          currentTimeInMinutes >= marketOpenMinutes && 
-          currentTimeInMinutes < marketCloseMinutes;
+        // Handle the case where market hours span across midnight
+        let isMarketHours;
+        if (marketOpenMinutes > marketCloseMinutes) {
+          // Market hours span across midnight (7:00 PM to 1:30 AM)
+          isMarketHours = !isWeekend && (
+            currentTimeInMinutes >= marketOpenMinutes || // After 7:00 PM
+            currentTimeInMinutes < marketCloseMinutes    // Before 1:30 AM
+          );
+        } else {
+          // Regular case (not applicable here but kept for safety)
+          isMarketHours = !isWeekend && 
+            currentTimeInMinutes >= marketOpenMinutes && 
+            currentTimeInMinutes < marketCloseMinutes;
+        }
         
         const marketStatus = isMarketHours ? 'OPEN' : 'CLOSED';
 
